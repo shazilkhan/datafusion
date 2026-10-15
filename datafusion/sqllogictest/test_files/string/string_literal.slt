@@ -399,6 +399,18 @@ SELECT lpad('x', 'bad');
 query error lpad requested length 2147483648 too large
 SELECT lpad('x', 2147483648, 'y');
 
+# negative and excessive target lengths from a column
+query TT
+SELECT lpad(column1, column2), lpad(column1, column2, 'xy')
+FROM (VALUES ('hi', -1), ('hi', 0), ('hi', 4)) ORDER BY column2;
+----
+(empty) (empty)
+(empty) (empty)
+  hi xyhi
+
+query error lpad requested length 9223372036854775807 too large
+SELECT lpad(column1, column2) FROM (VALUES ('hi', 9223372036854775807));
+
 query T
 SELECT regexp_replace('foobar', 'bar', 'xx', 'gi')
 ----
@@ -784,6 +796,18 @@ SELECT rpad('x', 'bad');
 
 query error rpad requested length 2147483648 too large
 SELECT rpad('x', 2147483648, 'y');
+
+# negative and excessive target lengths from a column
+query TT
+SELECT rpad(column1, column2), rpad(column1, column2, 'xy')
+FROM (VALUES ('hi', -1), ('hi', 0), ('hi', 4)) ORDER BY column2;
+----
+(empty) (empty)
+(empty) (empty)
+hi   hixy
+
+query error rpad requested length 9223372036854775807 too large
+SELECT rpad(column1, column2) FROM (VALUES ('hi', 9223372036854775807));
 
 query I
 SELECT char_length('')
